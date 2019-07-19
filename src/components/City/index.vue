@@ -34,7 +34,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/api/cityList').then((res)=> {
+    this.$axios.get('/api/cityList').then((res)=> {
       let msg = res.data.msg
       if(msg === 'ok') {
         let cities = res.data.data.cities

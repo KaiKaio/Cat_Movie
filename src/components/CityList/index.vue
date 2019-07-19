@@ -3,18 +3,19 @@
     <Loading v-if="isLoading" />
     <Scroller v-else>
     <ul>
-      <li>
+      <li v-for="item in cinemaList" :key=item.id>
         <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
+          <span>{{ item.nm }}</span>
+          <span class="q"><span class="price">{{ item.sellPrice }}</span> 元起</span>
         </div>
         <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
+          <span>{{ item.addr }}</span>
+          <span>{{ item.distance }}</span>
         </div>
         <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
+          <div v-for="(num, key) in item.tag" :key="key" v-if="num === 1" :class="key | classCard">
+            <span>{{ key | formatCard }}</span>
+          </div>
         </div>
       </li>
     </ul>
@@ -24,7 +25,50 @@
 
 <script>
 export default {
-  name: 'CityList'
+  name: 'CityList',
+  data () {
+    return {
+      cinemaList: []
+    }
+  },
+  mounted () {
+    this.$axios.get('/api/cinemaList?cityId=10').then((res)=>{
+      let msg = res.data.msg
+      if(msg === 'ok') {
+        this.cinemaList = res.data.data.cinemas
+      }
+    })
+  },
+  filters: {
+    formatCard(key) {
+      var card = [
+        { key : 'allowRefund', value: '改签'  },
+        { key : 'endorse', value: '退订'},
+        { key: 'sell', value: '折扣卡' },
+        { key: 'snack', value: '小吃' }
+      ];
+      for(let i = 0; i < card.length; i++) {
+        if(card[i].key === key) {
+          return card[i].value
+        }
+      }
+      return ''
+    },
+    classCard(key) {
+      var card = [
+        { key : 'allowRefund', value: 'or'  },
+        { key : 'endorse', value: 'bl'},
+        { key: 'sell', value: 'or' },
+        { key: 'snack', value: 'bl' }
+      ];
+      for(let i = 0; i < card.length; i++) {
+        if(card[i].key === key) {
+          return card[i].value
+        }
+      }
+      return ''
+    }
+  }
 }
 </script>
 
@@ -73,8 +117,10 @@ export default {
   padding: 0 3px;
   height: 15px;
   line-height: 15px;
-  border-radius: 2px; color: #f90; border: 1px solid #f90;
-  font-size: 13px; margin-right: 5px;
+  border-radius: 2px;
+  color: #f90; border: 1px solid #f90;
+  font-size: 13px;
+  margin-right: 5px;
 }
 
 .cinema_body .card div.or{
